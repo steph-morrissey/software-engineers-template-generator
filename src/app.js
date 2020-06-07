@@ -2,6 +2,7 @@ const Manager = require("./lib/Manager");
 const Engineer = require("./lib/Engineer");
 const Intern = require("./lib/Intern");
 const inquirer = require("inquirer");
+inquirer.registerPrompt("recursive", require("inquirer-recursive"));
 const path = require("path");
 const fs = require("fs");
 
@@ -10,17 +11,72 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
-const employeeTeamQuestions = [
-  { type: "input", name: "name", message: "What is your name?" },
-  { type: "input", name: "id", message: "What is your Office Number?" },
-  { type: "input", name: "email", message: "What is your email address?" },
+const validateEmail = (email) => {
+  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+};
+
+const addEmployee = [
+  {
+    type: "recursive",
+    message: "Add an employee?",
+    name: "employees",
+    prompts: [
+      {
+        type: "input",
+        name: "name",
+        message: "Enter your full name",
+      },
+      {
+        type: "list",
+        name: "jobTitle",
+        message: "Choose job title",
+        choices: ["Manager", "Engineer", "Intern"],
+      },
+      {
+        type: "input",
+        name: "officeNumber",
+        message: "Please state Office Number",
+        when: (answers) => {
+          return answers.jobTitle === "Manager";
+        },
+      },
+      {
+        type: "input",
+        name: "id",
+        message: "Enter ID number",
+      },
+      {
+        type: "input",
+        name: "email",
+        message: "Enter email address",
+        validate: validateEmail,
+      },
+      {
+        type: "input",
+        name: "github",
+        message: "Enter github username",
+        when: (answers) => {
+          return answers.jobTitle === "Engineer";
+        },
+      },
+      {
+        type: "input",
+        name: "school",
+        message: "Enter school Intern belongs to",
+        when: (answers) => {
+          return answers.jobTitle === "Intern";
+        },
+      },
+    ],
+  },
 ];
 
 const processAnswers = (response) => {
   console.log(response);
 };
 function init() {
-  inquirer.prompt(employeeTeamQuestions).then(processAnswers);
+  inquirer.prompt(addEmployee).then(processAnswers);
 }
 
 init();
