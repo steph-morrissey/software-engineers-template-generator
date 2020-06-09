@@ -2,15 +2,16 @@ const Manager = require("./lib/Manager");
 const Engineer = require("./lib/Engineer");
 const Intern = require("./lib/Intern");
 const inquirer = require("inquirer");
-inquirer.registerPrompt("recursive", require("inquirer-recursive"));
 const path = require("path");
 const fs = require("fs");
+inquirer.registerPrompt("recursive", require("inquirer-recursive"));
 
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
+// Function to validate email
 const validateEmail = (email) => {
   const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(String(email).toLowerCase());
@@ -138,10 +139,13 @@ const processTeam = (answers) => {
   let teamMembers = employees.map((employee) => {
     if (employee.role === "Engineer") {
       newEngineer(employee);
-    } else {
+    } else if (employee.role === "Intern") {
       newIntern(employee);
     }
   });
+  // Once all employee classes have been instantiated
+  // It then calls the render method and passes in the array info to be displayed
+  fs.writeFileSync(outputPath, render(renderTeamMembers));
 };
 
 // Prompts user to add a series of employees using a series of questions
