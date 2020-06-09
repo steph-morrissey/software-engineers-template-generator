@@ -16,7 +16,39 @@ const validateEmail = (email) => {
   return re.test(String(email).toLowerCase());
 };
 
-const addEmployee = [
+const renderTeamMembers = [];
+
+const generateManager = [
+  {
+    type: "input",
+    name: "name",
+    message: "Enter your full name",
+  },
+  {
+    type: "list",
+    name: "role",
+    message: "Choose job title",
+    choices: ["Manager"],
+  },
+  {
+    type: "input",
+    name: "id",
+    message: "Enter ID number",
+  },
+  {
+    type: "input",
+    name: "email",
+    message: "Enter email address",
+    validate: validateEmail,
+  },
+  {
+    type: "input",
+    name: "officeNumber",
+    message: "Please state Office Number",
+  },
+];
+
+const generateTeamMembers = [
   {
     type: "recursive",
     message: "Add an employee?",
@@ -29,17 +61,9 @@ const addEmployee = [
       },
       {
         type: "list",
-        name: "jobTitle",
+        name: "role",
         message: "Choose job title",
         choices: ["Manager", "Engineer", "Intern"],
-      },
-      {
-        type: "input",
-        name: "officeNumber",
-        message: "Please state Office Number",
-        when: (answers) => {
-          return answers.jobTitle === "Manager";
-        },
       },
       {
         type: "input",
@@ -57,7 +81,7 @@ const addEmployee = [
         name: "github",
         message: "Enter github username",
         when: (answers) => {
-          return answers.jobTitle === "Engineer";
+          return answers.role === "Engineer";
         },
       },
       {
@@ -65,18 +89,49 @@ const addEmployee = [
         name: "school",
         message: "Enter school Intern belongs to",
         when: (answers) => {
-          return answers.jobTitle === "Intern";
+          return answers.role === "Intern";
         },
       },
     ],
   },
 ];
 
-const processAnswers = (response) => {
-  console.log(response);
+const newManager = (employee) => {
+  const manager = new Manager(
+    employee.name,
+    employee.id,
+    employee.email,
+    employee.officeNumber
+  );
+  renderTeamMembers.push(manager);
 };
+
+const newEngineer = (employee) => {
+  console.log("Engineer", employee);
+};
+
+const newIntern = (employee) => {
+  console.log("Intern", employee);
+};
+
+const processTeam = (answers) => {
+  const employees = answers.employees;
+  let teamMembers = employees.map((employee) => {
+    if (employee.role === "Engineer") {
+      newEngineer(employee);
+    } else {
+      newIntern(employee);
+    }
+  });
+};
+
+const generateTeam = (employee) => {
+  newManager(employee);
+  inquirer.prompt(generateTeamMembers).then(processTeam);
+};
+
 function init() {
-  inquirer.prompt(addEmployee).then(processAnswers);
+  inquirer.prompt(generateManager).then(generateTeam);
 }
 
 init();
