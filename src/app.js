@@ -16,8 +16,10 @@ const validateEmail = (email) => {
   return re.test(String(email).toLowerCase());
 };
 
+// Initialisation of empty array which will hold class instances for Manager/Engineers/Interns
 const renderTeamMembers = [];
 
+// Array of questions specific to Manager
 const generateManager = [
   {
     type: "input",
@@ -48,6 +50,7 @@ const generateManager = [
   },
 ];
 
+// Array of questions specific to Engineers/Interns
 const generateTeamMembers = [
   {
     type: "recursive",
@@ -63,7 +66,7 @@ const generateTeamMembers = [
         type: "list",
         name: "role",
         message: "Choose job title",
-        choices: ["Manager", "Engineer", "Intern"],
+        choices: ["Engineer", "Intern"],
       },
       {
         type: "input",
@@ -96,6 +99,7 @@ const generateTeamMembers = [
   },
 ];
 
+// Creates new instance of Manager class
 const newManager = (employee) => {
   const manager = new Manager(
     employee.name,
@@ -106,14 +110,29 @@ const newManager = (employee) => {
   renderTeamMembers.push(manager);
 };
 
+// Creates new instance of Engineer class
 const newEngineer = (employee) => {
-  console.log("Engineer", employee);
+  const engineer = new Engineer(
+    employee.name,
+    employee.id,
+    employee.email,
+    employee.username
+  );
+  renderTeamMembers.push(engineer);
 };
 
+// Creates new instance of Intern class
 const newIntern = (employee) => {
-  console.log("Intern", employee);
+  const intern = new Intern(
+    employee.name,
+    employee.id,
+    employee.email,
+    employee.school
+  );
+  renderTeamMembers.push(intern);
 };
 
+// Maps over employees object and creates new instance of class specific to job role
 const processTeam = (answers) => {
   const employees = answers.employees;
   let teamMembers = employees.map((employee) => {
@@ -125,11 +144,15 @@ const processTeam = (answers) => {
   });
 };
 
+// Prompts user to add a series of employees using a series of questions
+// Then executes processTeam()
 const generateTeam = (employee) => {
   newManager(employee);
   inquirer.prompt(generateTeamMembers).then(processTeam);
 };
 
+// Prompts Manager to answer a series of questions
+// Then executes generateTeam()
 function init() {
   inquirer.prompt(generateManager).then(generateTeam);
 }
